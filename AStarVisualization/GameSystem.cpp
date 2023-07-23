@@ -16,15 +16,17 @@ void GameSystem::render() {
 
 	// set the color
 	text.setFillColor(sf::Color::White);
-
-	// set the text style
-	text.setStyle(sf::Text::Bold | sf::Text::Underlined);
-
 	
+	// set the text style
+	// text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+	sf::Transform t;
+	//t.translate(500, 500);
 
-		// inside the main loop, between window.clear() and window.display()
-	m_window.draw(text);
-
+	// inside the main loop, between window.clear() and window.display()
+	m_window.draw(text, t);
+	auto bound = text.getGlobalBounds();
+	std::cout << bound.left << " " << bound.top << " " << bound.width << " " << bound.top << "\n";
+	//m_window.draw(text);
 	m_window.display();
 }
 

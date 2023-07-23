@@ -1,42 +1,45 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <string>
+#include <functional>
+
 enum class ComponentType {
-	RENDER,
-	RAYCAST,
-	FOLLOWCURSOR
+	SHAPE,
+	CLICKABLE,
+	TEXT,
+	EDITTEXT
 };
 
-class CRender
+
+struct CShape
 {
-public:
 	sf::VertexArray vertexArray;
-	sf::RenderStates states = sf::RenderStates::Default;
-	CRender(const sf::VertexArray& vertexArray_) 
+	sf::RenderStates states {sf::RenderStates::Default};
+	CShape(const sf::VertexArray& vertexArray_)
 		: vertexArray(vertexArray_){}
-	CRender(const sf::VertexArray& vertexArray_, const sf::RenderStates& states_)
+	CShape(const sf::VertexArray& vertexArray_, const sf::RenderStates& states_)
 		: vertexArray(vertexArray_), states(states_) {}
 };
 
-class CRayCast
+struct CClickable
 {
-public:
-	size_t numRays = 10;
-	float rayLength = 4000;
-	bool toMouse = false;
-	bool drawTriangle = false;
-	bool drawRay = false;
-	bool sweep = false;
-	CRayCast(size_t numRays_, bool drawTriangle_, bool drawRay_, bool sweep_)
-		: numRays(numRays_), toMouse(false), drawTriangle(drawTriangle_), drawRay(drawRay_), sweep(sweep_){}
-	CRayCast() : toMouse(true) {}
+	bool isActive{true};
+	std::function<void()> onClickListener;
+	CClickable(std::function<void()> listener) : onClickListener(listener){}
 };
 
-class CFlollowCursor
+struct CText
 {
-public:
-	bool follow = true;
-	CFlollowCursor() = default;
-	CFlollowCursor(bool follow_) : follow(follow_) {}
+	sf::Text text;
+	CText(const sf::String& initialText, const sf::Font& font,
+		unsigned int fontSize) : text(initialText, font, fontSize){}
 };
 
+struct CEditText
+{
+	bool canEdit{true};
+	sf::Text text;
+	CEditText(const sf::String& initialText, const sf::Font& font,
+		unsigned int fontSize) : text(initialText, font, fontSize) {}
+};

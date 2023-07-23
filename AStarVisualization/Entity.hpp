@@ -6,9 +6,10 @@
 #include <tuple>
 
 typedef std::tuple<
-	std::shared_ptr<CRender>
-	,std::shared_ptr<CRayCast>
-	, std::shared_ptr<CFlollowCursor>
+	std::shared_ptr<CShape>
+	,std::shared_ptr<CClickable>
+	, std::shared_ptr<CText>
+	, std::shared_ptr<CEditText>
 > ComponentTuple;
 
 
