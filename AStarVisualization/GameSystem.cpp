@@ -4,29 +4,33 @@ static std::string str{};
 
 void GameSystem::render() {
 	m_window.clear();
-	sf::Text text;
-	// select the font
-	text.setFont(m_config.font); // font is a sf::Font
+	auto manager = m_curScene->getManager();
 
-	// set the string to display
-	text.setString(str);
+	// Draw Shapes
+	for (auto& entity : manager->getEntities(ComponentType::SHAPE)) {
+		auto cShape = entity->getComponent<CShape>();
+		m_window.draw(cShape->vertexArray, cShape->states);
+	}
+	// Draw Texts
+	for (auto& entity : manager->getEntities(ComponentType::TEXT)) {
+		auto cText = entity->getComponent<CText>();
+		m_window.draw(cText->text, cText->states);
+	}
 
-	// set the character size
-	text.setCharacterSize(24); // in pixels, not points!
+	// Draw a Box for the focused entity
+	if (m_focus) {
+		if (m_focus->hasComponent<CText>()) {
+			auto cText = m_focus->getComponent<CText>();
+			auto bound = cText->states.transform.transformRect(cText->text.getGlobalBounds());
+			auto rect = sf::RectangleShape(sf::Vector2f(bound.width + 2, bound.height + 2));
+			rect.setFillColor(sf::Color::Transparent);
+			rect.setOutlineColor(sf::Color::White);
+			rect.setOutlineThickness(1);
+			rect.setPosition(bound.left - 1, bound.top - 1);
+			m_window.draw(rect);
+		}
+	}
 
-	// set the color
-	text.setFillColor(sf::Color::White);
-	
-	// set the text style
-	// text.setStyle(sf::Text::Bold | sf::Text::Underlined);
-	sf::Transform t;
-	//t.translate(500, 500);
-
-	// inside the main loop, between window.clear() and window.display()
-	m_window.draw(text, t);
-	auto bound = text.getGlobalBounds();
-	std::cout << bound.left << " " << bound.top << " " << bound.width << " " << bound.top << "\n";
-	//m_window.draw(text);
 	m_window.display();
 }
 
@@ -47,38 +51,74 @@ void GameSystem::handleUserInput() {
 		if (event.type == sf::Event::GainedFocus)
 			std::cout << "GainedFocus\n";
 
-
-		else if (event.type == sf::Event::TextEntered)
+		// Edit focused text
+		else if (m_focus && event.type == sf::Event::TextEntered)
 		{
-			// BackSpace
-			if (event.text.unicode == 8) {
-				if(!str.empty())
-					str.pop_back();
+			if (m_focus->hasComponent<CText>()) {
+				auto cText = m_focus->getComponent<CText>();
+				if (cText->canEdit) {
+					const auto& curStr = cText->text.getString();
+					// backSpace
+					if (event.text.unicode == 8) {
+						if (curStr.getSize() > 1)
+							cText->text.setString(curStr.substring(0, curStr.getSize() - 1));
+						else
+							cText->text.setString("0");
+					}
+					// number
+					else if (48 <= event.text.unicode && event.text.unicode <= 57) {
+						if (curStr.getSize() <= 1 && curStr == "0")
+							cText->text.setString(static_cast<char>(event.text.unicode));
+						else
+							cText->text.setString(curStr + static_cast<char>(event.text.unicode));
+					}
+				}
 			}
-			else if (event.text.unicode < 128)
-				//std::cout << "ASCII character typed: " << static_cast<char>(event.text.unicode) << std::endl;
-				str.push_back(static_cast<char>(event.text.unicode));
 		}
-
-		if (event.type == sf::Event::MouseWheelScrolled)
-		{
-			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
-				std::cout << "wheel type: vertical" << std::endl;
-			else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
-				std::cout << "wheel type: horizontal" << std::endl;
-			else
-				std::cout << "wheel type: unknown" << std::endl;
-			std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
-			std::cout << "mouse x: " << event.mouseWheelScroll.x << std::endl;
-			std::cout << "mouse y: " << event.mouseWheelScroll.y << std::endl;
-		}
+		// Handle click
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
-			if (event.mouseButton.button == sf::Mouse::Right)
+			if (event.mouseButton.button == sf::Mouse::Left)
 			{
 				std::cout << "the right button was pressed" << std::endl;
 				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
 				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+				auto manager = m_curScene->getManager();
+				// Lose focus
+				std::cout << "Focus lost" << std::endl;
+				m_focus.reset();
+				// Find clicked entity
+				auto& entities = manager->getEntities(ComponentType::CLICKABLE);
+				for (auto& entity : entities) {
+					auto cClick = entity->getComponent<CClickable>();
+					if (cClick->isActive) {
+						// Boundary check for Edit Texts
+						if (entity->hasComponent<CText>()) {
+							auto cText = entity->getComponent<CText>();
+							if (cText->canEdit) {
+								auto bound = cText->states.transform.transformRect(cText->text.getGlobalBounds());
+								if (bound.contains(event.mouseButton.x, event.mouseButton.y)) {
+									m_focus = entity;
+									cClick->onClickListener();
+									std::cout << "New focus" << std::endl;
+									std::cout << std::format("{}, {}, {}, {}\n", bound.top, bound.left, bound.width, bound.height);
+									break;
+								}
+							}
+						}
+						// Boundary check for Shapes
+						else if (entity->hasComponent<CShape>()) {
+							auto cShape = entity->getComponent<CShape>();
+							auto bound = cShape->states.transform.transformRect(cShape->vertexArray.getBounds());
+							std::cout << std::format("{}, {}, {}, {}\n", bound.top, bound.left, bound.width, bound.height);
+							if (bound.contains(event.mouseButton.x, event.mouseButton.y)) {
+								cClick->onClickListener();
+								std::cout << "Clicked a shape" << std::endl;
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 		/*
@@ -93,7 +133,7 @@ void GameSystem::handleUserInput() {
 
 		if (event.type == sf::Event::MouseLeft)
 			std::cout << "the mouse cursor has left the window" << std::endl;
-	
+
 	}
 }
 
@@ -108,7 +148,7 @@ void GameSystem::setScene(std::unique_ptr<Scene>&& scene) {
 GameSystem::GameSystem() : m_config(GameConfig::instance()), m_window(sf::VideoMode(m_config.windowWidth, m_config.widowHeight), m_config.windowName.c_str())
 {
 	m_window.setFramerateLimit(m_config.frameRate);
-	setScene(std::make_unique<Scene1>());
+	setScene(std::make_unique<MainScene>());
 }
 void GameSystem::run() {
 	while (m_window.isOpen())

@@ -14,17 +14,14 @@ size_t Entity::getId() {
 
 std::vector<ComponentType> Entity::getComponentTypes() {
 	std::vector<ComponentType> types;
-	if (hasComponent<CClickable>()) {
-		types.push_back(ComponentType::CLICKABLE);
-	}
 	if (hasComponent<CShape>()) {
 		types.push_back(ComponentType::SHAPE);
 	}
 	if (hasComponent<CText>()) {
 		types.push_back(ComponentType::TEXT);
 	}
-	if (hasComponent<CEditText>()) {
-		types.push_back(ComponentType::EDITTEXT);
+	if (hasComponent<CClickable>()) {
+		types.push_back(ComponentType::CLICKABLE);
 	}
 
 	return types;

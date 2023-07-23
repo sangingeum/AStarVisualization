@@ -7,9 +7,8 @@
 
 typedef std::tuple<
 	std::shared_ptr<CShape>
-	,std::shared_ptr<CClickable>
+	, std::shared_ptr<CClickable>
 	, std::shared_ptr<CText>
-	, std::shared_ptr<CEditText>
 > ComponentTuple;
 
 
@@ -30,7 +29,7 @@ public:
 	std::vector<ComponentType> getComponentTypes();
 };
 
-template <class T, class... TArgs> 
+template <class T, class... TArgs>
 std::shared_ptr<T> Entity::addComponent(TArgs&&... mArgs) {
 	auto newComp = std::shared_ptr<T>(new T(std::forward<TArgs>(mArgs)...));
 	std::get<std::shared_ptr<T>>(m_components) = newComp;

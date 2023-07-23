@@ -4,7 +4,7 @@
 
 // Singleton config
 class GameConfig
-{	
+{
 	GameConfig() {
 		// Load a font
 		if (!font.loadFromFile("fonts/Roboto-Medium.ttf"))
@@ -21,7 +21,7 @@ public:
 	std::string windowName = "A* algorithm";
 	const float pi = 3.14159265358979323846f;
 	sf::Font font;
-	
+
 };
 
 
