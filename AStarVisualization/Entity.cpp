@@ -23,6 +23,8 @@ std::vector<ComponentType> Entity::getComponentTypes() {
 	if (hasComponent<CClickable>()) {
 		types.push_back(ComponentType::CLICKABLE);
 	}
-
+	if (hasComponent<CBlock>()) {
+		types.push_back(ComponentType::BLOCK);
+	}
 	return types;
 }

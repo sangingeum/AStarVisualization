@@ -9,6 +9,7 @@ typedef std::tuple<
 	std::shared_ptr<CShape>
 	, std::shared_ptr<CClickable>
 	, std::shared_ptr<CText>
+	, std::shared_ptr<CBlock>
 > ComponentTuple;
 
 

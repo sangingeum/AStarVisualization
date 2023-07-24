@@ -7,7 +7,8 @@
 enum class ComponentType {
 	SHAPE,
 	TEXT,
-	CLICKABLE
+	CLICKABLE,
+	BLOCK
 };
 
 struct CShape
@@ -26,7 +27,7 @@ struct CText
 	sf::RenderStates states {sf::RenderStates::Default};
 	bool canEdit{ true };
 	CText(const sf::String& initialText, const sf::Font& font,
-		unsigned int fontSize) 
+		unsigned int fontSize)
 		: text(initialText, font, fontSize) {}
 	CText(const sf::String& initialText, const sf::Font& font,
 		unsigned int fontSize, const sf::RenderStates& states_)
@@ -38,4 +39,11 @@ struct CClickable
 	bool isActive{ true };
 	std::function<void()> onClickListener;
 	CClickable(std::function<void()> listener) : onClickListener(listener) {}
+};
+
+struct CBlock {
+	bool passable{ true };
+	bool isStart{ false };
+	bool isEnd{ false };
+	bool visited{ false };
 };
