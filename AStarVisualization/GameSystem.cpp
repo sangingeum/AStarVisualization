@@ -17,6 +17,7 @@ void GameSystem::render() {
 		m_window.draw(cText->text, cText->states);
 	}
 
+	/*
 	// Draw a Box for the focused entity
 	if (m_focus) {
 		if (m_focus->hasComponent<CText>()) {
@@ -30,6 +31,8 @@ void GameSystem::render() {
 			m_window.draw(rect);
 		}
 	}
+	*/
+	
 
 	m_window.display();
 }
@@ -40,67 +43,27 @@ void GameSystem::handleUserInput() {
 	{
 		if (event.type == sf::Event::Closed)
 			m_window.close();
-		if (event.type == sf::Event::Resized)
+		else if (event.type == sf::Event::Resized)
 		{
 			std::cout << "new width: " << event.size.width << std::endl;
 			std::cout << "new height: " << event.size.height << std::endl;
 		}
-		if (event.type == sf::Event::LostFocus)
+		else if (event.type == sf::Event::LostFocus)
 			std::cout << "LostFocus\n";
 
-		if (event.type == sf::Event::GainedFocus)
+		else if (event.type == sf::Event::GainedFocus)
 			std::cout << "GainedFocus\n";
 
-		// Edit focused text
-		else if (m_focus && event.type == sf::Event::TextEntered)
-		{
-			if (m_focus->hasComponent<CText>()) {
-				auto cText = m_focus->getComponent<CText>();
-				if (cText->canEdit) {
-					const auto& curStr = cText->text.getString();
-					// backSpace
-					if (event.text.unicode == 8) {
-						if (curStr.getSize() > 1)
-							cText->text.setString(curStr.substring(0, curStr.getSize() - 1));
-						else
-							cText->text.setString("0");
-					}
-					// number
-					else if (48 <= event.text.unicode && event.text.unicode <= 57) {
-						if (curStr.getSize() <= 1 && curStr == "0")
-							cText->text.setString(static_cast<char>(event.text.unicode));
-						else
-							cText->text.setString(curStr + static_cast<char>(event.text.unicode));
-					}
-				}
-			}
-		}
-		// Handle click
-		m_curScene->handleMouseInput(event);
-		if (event.type == sf::Event::MouseButtonPressed)
-		{
-			if (event.mouseButton.button == sf::Mouse::Left)
-			{
-				
-				
-				
-				
-			}
-		}
-
-		/*
-		if (event.type == sf::Event::MouseMoved)
-		{
-			std::cout << "new mouse x: " << event.mouseMove.x << std::endl;
-			std::cout << "new mouse y: " << event.mouseMove.y << std::endl;
-		}
-		*/
-
-		if (event.type == sf::Event::MouseEntered)
+		else if (event.type == sf::Event::MouseEntered)
 			std::cout << "the mouse cursor has entered the window" << std::endl;
 
-		if (event.type == sf::Event::MouseLeft)
+		else if (event.type == sf::Event::MouseLeft)
 			std::cout << "the mouse cursor has left the window" << std::endl;
+		else {
+			m_curScene->handleKeyBoardInput(event);
+			// Handle click
+			m_curScene->handleMouseInput(event);
+		}
 
 	}
 }

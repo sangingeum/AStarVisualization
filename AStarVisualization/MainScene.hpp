@@ -12,7 +12,8 @@ public:
 	size_t n{ 10 }, m{ 10 };
 	std::shared_ptr<Entity> nField;
 	std::shared_ptr<Entity> mField;
-	std::vector<std::shared_ptr<Entity>> blocks; // Check later
+	std::shared_ptr<Entity> resetButton;
+	std::vector<std::shared_ptr<Entity>> blocks;
 	KDTree<2, std::shared_ptr<Entity>> m_tree;
 	sf::FloatRect gridRect{570, 10, 700, 700};
 	
@@ -104,9 +105,9 @@ public:
 	void init() override {
 		int fieldLeft = 100, fieldTop = 100;
 		// nField
-		nField = createEditText("5", 36, fieldLeft + 50, fieldTop);
+		nField = createEditText(std::to_string(n), 36, fieldLeft + 50, fieldTop);
 		// mField
-		mField = createEditText("5", 36, fieldLeft + 50, fieldTop + 50);
+		mField = createEditText(std::to_string(m), 36, fieldLeft + 50, fieldTop + 50);
 		// nLabel
 		createLabel("N:", 36, fieldLeft, fieldTop);
 		// mLabel
@@ -114,7 +115,7 @@ public:
 		// Create Blocks
 		resetBlocks();
 		// Create reset button
-		createButton(fieldLeft + 50, fieldTop + 150, 100, 50, [this]() {
+		resetButton = createButton(fieldLeft + 50, fieldTop + 150, 100, 50, [this]() {
 			updateNM();
 			resetBlocks();
 			});
@@ -123,18 +124,76 @@ public:
 	}
 
 	void handleMouseInput(sf::Event& event) override {
+
 		if (event.type == sf::Event::MouseButtonPressed) {
 			if (event.mouseButton.button == sf::Mouse::Left) {
 				std::cout << "the left button was pressed" << std::endl;
 				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
 				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-				// Find clicked entity
+				
 				float mouseX = event.mouseButton.x;
 				float mouseY = event.mouseButton.y;
+				// Handle clicked button
 				if (gridRect.contains(mouseX, mouseY)) {
 					auto nearestButton = m_tree.findNearestNeighbor({ mouseX, mouseY }).second;
 					auto cClick = nearestButton->getComponent<CClickable>();
 					cClick->onClickListener();
+				}
+				// Check text fields
+				for (auto& entity : { nField, mField }) {
+					auto cText = entity->getComponent<CText>();
+					// Reset focus
+					std::cout << "Lose focus\n";
+					cText->focused = false;
+					auto& text = cText->text;
+					text.setStyle(sf::Text::Style::Regular);
+					// Set focus
+					auto bound = cText->states.transform.transformRect(text.getGlobalBounds());
+					if (bound.contains(mouseX, mouseY)) {
+						std::cout << "New focus\n";
+						cText->focused = true;
+						text.setStyle(sf::Text::Style::Underlined);
+					}
+				}
+				// Check buttons
+				for (auto& entity : { resetButton }) {
+					auto cShape = entity->getComponent<CShape>();
+					auto bound = cShape->states.transform.transformRect(cShape->vertexArray.getBounds());
+					if (bound.contains(mouseX, mouseY)) {
+						auto cClick = entity->getComponent<CClickable>();
+						cClick->onClickListener();
+					}
+				}
+			}
+		}
+	}
+
+	void handleKeyBoardInput(sf::Event& event) override {
+		if (event.type == sf::Event::TextEntered) {
+			// Edit focused text
+			for (auto& entity : { nField, mField }) {
+				auto cText = entity->getComponent<CText>();
+				auto& text = cText->text;
+				auto& str = text.getString();
+				auto code = event.text.unicode;
+				if (cText->focused) {
+					std::cout << "Editting Focused text\n";
+					// backspace
+					if (code == 8) {
+						size_t size = str.getSize();
+						if (size <= 1)
+							text.setString("0");
+						else
+							text.setString(str.substring(0, size - 1));
+					}
+					// number
+					else if (48 <= code && code <= 57) {
+						size_t size = str.getSize();
+						if (str == "0")
+							text.setString(static_cast<char>(code));
+						else
+							text.setString(str + static_cast<char>(code));
+					}
 				}
 			}
 		}

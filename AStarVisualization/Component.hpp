@@ -26,6 +26,7 @@ struct CText
 	sf::Text text;
 	sf::RenderStates states {sf::RenderStates::Default};
 	bool canEdit{ true };
+	bool focused{ false };
 	CText(const sf::String& initialText, const sf::Font& font,
 		unsigned int fontSize)
 		: text(initialText, font, fontSize) {}

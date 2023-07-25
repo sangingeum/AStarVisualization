@@ -13,5 +13,6 @@ public:
 	Scene() : m_entityManager(std::make_shared<EntityManager>()), m_config(GameConfig::instance()) {}
 	virtual void init() = 0;
 	virtual void handleMouseInput(sf::Event& event) = 0;
+	virtual void handleKeyBoardInput(sf::Event& event) = 0;
 	std::shared_ptr<EntityManager> getManager();
 };
