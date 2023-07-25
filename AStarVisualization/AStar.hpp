@@ -1,6 +1,7 @@
 #pragma once
 #include "AdjacencyListGraph.hpp"
 #include "MinPriorityQueue.hpp"
+#include "Entity.hpp"
 #include <limits>
 #include <functional>
 
@@ -16,12 +17,17 @@ template <class Vertex>
 class AStar
 {
 public:
-	static std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
+	static std::vector<std::pair<size_t, float>> shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
 		std::function<float(const std::pair<float, float>&, const std::pair<float, float>&)> heuristic = NoHeuristic);
 private:
 	static void initialize(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to);
 	static float NoHeuristic(const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
 		return 0;
+	}
+	static void setColor(sf::VertexArray& array, sf::Color color) {
+		size_t vertexSize = array.getVertexCount();
+		for (size_t i = 0; i < vertexSize; ++i)
+			array[i].color = color;
 	}
 };
 
@@ -29,7 +35,7 @@ private:
 // A heuristic function should be passed as an argument to guide the search.
 // If not given, it runs the Dijksta's algorithm instead.
 template <class Vertex>
-std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> AStar<Vertex>::shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
+std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
 	std::function<float(const std::pair<float, float>&, const std::pair<float, float>&)> heuristic) {
 	size_t numVetices = graph.getNumVertices();
 	// Initialize the graph's gScroes, fScores, and parents
@@ -41,8 +47,10 @@ std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> AStar<Vert
 
 	// Make a visited vector to prevent redundant calulations
 	std::vector<bool> visited(numVetices, false);
-	std::vector<size_t> visitedVertices;
 	auto& goalAtt = graph.getVertexAttribute(to);
+	auto& startAtt = graph.getVertexAttribute(from);
+	auto startColor = startAtt.block->getComponent<CShape>()->vertexArray[0].color;
+	auto endColor = goalAtt.block->getComponent<CShape>()->vertexArray[0].color;
 
 	while (!minQ.empty()) {
 		auto [fScore, cur] = minQ.front(); minQ.pop();
@@ -53,27 +61,34 @@ std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> AStar<Vert
 
 		if (!visited[cur]) {
 			visited[cur] = true;
-			visitedVertices.push_back(cur);
 			auto& adjs = graph.getAdjacent(cur);
 			auto& edgeAtts = graph.getEdgeAttributes(cur);
 			auto& curAtt = graph.getVertexAttribute(cur);
+			setColor(curAtt.block->getComponent<CShape>()->vertexArray, sf::Color::Green);
 			size_t adjSize = adjs.size();
 			for (size_t i = 0; i < adjSize; ++i) {
 				size_t neighbor = adjs[i];
 				auto& neighborAtt = graph.getVertexAttribute(neighbor);
+				if (neighborAtt.block->getComponent<CBlock>()->isObstacle)
+					continue;
 				float tentativeGScore = curAtt.gScore + edgeAtts[i];
 				// If the path through the current vertex is better, update the neighbor
-				if (neighborAtt.gScore > tentativeGScore) {
+				if (neighborAtt.gScore > tentativeGScore && !visited[neighbor]) {
 					neighborAtt.parent = cur;
 					neighborAtt.gScore = tentativeGScore;
 					neighborAtt.fScore = tentativeGScore + heuristic(neighborAtt.pos, goalAtt.pos);
 					// Push the neighbor to the minQ with neighbor's fScore as a key
 					// Min priority queue selects the next vertex based on the fScore which is the sum of the gScore and the hScore.
 					minQ.push(neighborAtt.fScore, neighbor);
+					setColor(neighborAtt.block->getComponent<CShape>()->vertexArray, sf::Color::White);
 				}
 			}
 		}
 	}
+	// Reset Start and End color
+	setColor(startAtt.block->getComponent<CShape>()->vertexArray, startColor);
+	setColor(goalAtt.block->getComponent<CShape>()->vertexArray, endColor);
+
 
 	// Construct the path using the vertex attributes calculated above
 	std::vector<std::pair<size_t, float>> path;
@@ -85,7 +100,7 @@ std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> AStar<Vert
 	}
 
 	// Reverse the order
-	return std::pair(std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend()), visitedVertices);
+	return std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend());
 }
 
 template <class Vertex>

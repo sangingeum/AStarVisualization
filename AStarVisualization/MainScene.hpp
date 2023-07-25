@@ -36,8 +36,9 @@ public:
 	sf::FloatRect gridRect{570, 10, 700, 700};
 	sf::Color pathColor = sf::Color(154, 123, 79, 255);
 	sf::Color obstacleColor = sf::Color(72, 66, 39, 255);
-	sf::Color startColor = sf::Color(155, 155, 255, 255);
-	sf::Color endColor = sf::Color(255, 255, 255, 255);
+	sf::Color startColor = sf::Color::Blue;
+	sf::Color endColor = sf::Color::Red;
+	sf::Color grayColor = sf::Color(155, 155, 155, 255);
 	bool isMousePressing{ false };
 	bool leftPressing{ false };
 	bool AStarStarted{ false };
@@ -121,32 +122,25 @@ public:
 			mText->text.setString("5");
 			this->m = 5;
 		}
-		std::cout << std::format("n:{}, m:{}\n", this->n, this->m);
+
 	}
 	void setColor(sf::VertexArray& array, sf::Color color) {
 		size_t vertexSize = array.getVertexCount();
 		for (size_t i = 0; i < vertexSize; ++i)
 			array[i].color = color;
 	}
-	
+
 	void runAStar() {
-		
+
 		if (!AStarStarted) {
 			AStarStarted = true;
-			setColor(startButton->getComponent<CShape>()->vertexArray, sf::Color(155, 155, 155, 255));
-			auto pathVisitedPair = AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN, 
+			setColor(startButton->getComponent<CShape>()->vertexArray, grayColor);
+
+			AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN,
 				[](const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
 					// Calculate the squared euclidian distance -> quite greedy
 					return powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2);
-				}
-				);
-			for (auto& vertex : pathVisitedPair.second) {
-				setColor(graph.getVertexAttribute(vertex).block->getComponent<CShape>()->vertexArray, sf::Color::White);
-			}
-			for (auto& step : pathVisitedPair.first) {
-				std::cout << std::format("vertex:{}, distance:{}\n", step.first, step.second);
-				setColor(graph.getVertexAttribute(step.first).block->getComponent<CShape>()->vertexArray, sf::Color::Cyan);
-			}
+				});
 		}
 	}
 
@@ -171,7 +165,7 @@ public:
 				auto blockEntity = createBlock(x, y, size - 1, size - 1, pathColor);
 				blocks.push_back(blockEntity);
 				pointBlockPairs.push_back({ { x + halfSize , y + halfSize }, blockEntity });
-				
+
 				// Add edges (from, to, weight) to the graph to form a n * m grid
 				size_t cur = j + m * i;
 				if (j != 0)
@@ -201,7 +195,6 @@ public:
 		float startW = gridRect.left + startM * size;
 		float endH = gridRect.top + endN * size;
 		float endW = gridRect.left + endM * size;
-		std::cout << std::format("{}, {}, {}, {}", startW, startH, endW, endH);
 
 		auto startBlock = tree.findNearestNeighbor({ startW, startH }).second;
 		startBlock->getComponent<CBlock>()->isStart = true;
@@ -213,7 +206,7 @@ public:
 
 		// Enable path calculation
 		AStarStarted = false;
-		if(startButton)
+		if (startButton)
 			setColor(startButton->getComponent<CShape>()->vertexArray, sf::Color::White);
 
 	}
@@ -251,23 +244,18 @@ public:
 			isMousePressing = true;
 			if (event.mouseButton.button == sf::Mouse::Left) {
 				leftPressing = true;
-				std::cout << "the left button was pressed" << std::endl;
-				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
 				float mouseX = event.mouseButton.x;
 				float mouseY = event.mouseButton.y;
 				// Check text fields
 				for (auto& entity : { nField, mField }) {
 					auto cText = entity->getComponent<CText>();
 					// Reset focus
-					std::cout << "Lose focus\n";
 					cText->focused = false;
 					auto& text = cText->text;
 					text.setStyle(sf::Text::Style::Regular);
 					// Set focus
 					auto bound = cText->states.transform.transformRect(text.getGlobalBounds());
 					if (bound.contains(mouseX, mouseY)) {
-						std::cout << "New focus\n";
 						cText->focused = true;
 						text.setStyle(sf::Text::Style::Underlined);
 					}
@@ -301,7 +289,6 @@ public:
 				auto& str = text.getString();
 				auto code = event.text.unicode;
 				if (cText->focused) {
-					std::cout << "Editting Focused text\n";
 					// backspace
 					if (code == 8) {
 						size_t size = str.getSize();
@@ -324,12 +311,11 @@ public:
 	}
 
 	void update(sf::RenderWindow& window) {
+		// Change the color of the block under the mouse cursor
 		if (isMousePressing) {
 			auto mousePos = sf::Mouse::getPosition(window);
 			float mouseX = mousePos.x;
 			float mouseY = mousePos.y;
-			std::cout << mouseX << " " << mouseY << "\n";
-			// Handle clicked button
 			if (gridRect.contains(mouseX, mouseY)) {
 				auto nearestButton = tree.findNearestNeighbor({ mouseX, mouseY }).second;
 				auto cClick = nearestButton->getComponent<CClickable>();

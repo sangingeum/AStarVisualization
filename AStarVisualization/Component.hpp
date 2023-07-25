@@ -49,5 +49,4 @@ struct CBlock {
 	bool isObstacle{ false };
 	bool isStart{ false };
 	bool isEnd{ false };
-	bool visited{ false };
 };

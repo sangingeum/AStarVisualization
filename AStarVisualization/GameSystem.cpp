@@ -22,26 +22,8 @@ void GameSystem::render() {
 void GameSystem::handleUserInput() {
 	sf::Event event;
 	while (m_window.pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed)
-			m_window.close();
-		else if (event.type == sf::Event::Resized)
-		{
-			std::cout << "new width: " << event.size.width << std::endl;
-			std::cout << "new height: " << event.size.height << std::endl;
-		}
-		else if (event.type == sf::Event::LostFocus)
-			std::cout << "LostFocus\n";
-
-		else if (event.type == sf::Event::GainedFocus)
-			std::cout << "GainedFocus\n";
-
-		else if (event.type == sf::Event::MouseEntered)
-			std::cout << "the mouse cursor has entered the window" << std::endl;
-
-		else if (event.type == sf::Event::MouseLeft)
-			std::cout << "the mouse cursor has left the window" << std::endl;
-		
+	{	
+		// Let the current scent to handle user inputs
 		m_curScene->handleKeyBoardInput(event);
 		m_curScene->handleMouseInput(event);
 	}
