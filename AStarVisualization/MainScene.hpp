@@ -1,21 +1,38 @@
 #pragma once
 #include "Scene.hpp"
 #include "KDTree.hpp"
+#include "AStar.hpp"
 #include <cmath>
 #include <iostream>
 #include <format>
+
 
 //Concrete Scenes
 class MainScene : public Scene {
 
 public:
+	// Graph vertex
+	struct Vertex {
+		std::pair<float, float> pos;
+		float gScore, fScore;
+		size_t parent;
+		std::shared_ptr<Entity> block;
+	};
+
 	size_t n{ 10 }, m{ 10 };
 	std::shared_ptr<Entity> nField;
 	std::shared_ptr<Entity> mField;
+
 	std::shared_ptr<Entity> resetButton;
 	std::shared_ptr<Entity> startButton;
+	float startN{};
+	float startM{};
+	float endN{};
+	float endM{};
 	std::vector<std::shared_ptr<Entity>> blocks;
-	KDTree<2, std::shared_ptr<Entity>> m_tree;
+	KDTree<2, std::shared_ptr<Entity>> tree;
+	AdjacencyListGraph<Vertex> graph{0};
+
 	sf::FloatRect gridRect{570, 10, 700, 700};
 	sf::Color pathColor = sf::Color(154, 123, 79, 255);
 	sf::Color obstacleColor = sf::Color(72, 66, 39, 255);
@@ -23,6 +40,8 @@ public:
 	sf::Color endColor = sf::Color(255, 255, 255, 255);
 	bool isMousePressing{ false };
 	bool leftPressing{ false };
+	bool AStarStarted{ false };
+
 
 	std::shared_ptr<Entity> createEditText(const std::string initialText, unsigned fontSize, float left, float top) {
 		auto entity = m_entityManager->addEntity();
@@ -104,12 +123,33 @@ public:
 		}
 		std::cout << std::format("n:{}, m:{}\n", this->n, this->m);
 	}
-
 	void setColor(sf::VertexArray& array, sf::Color color) {
 		size_t vertexSize = array.getVertexCount();
 		for (size_t i = 0; i < vertexSize; ++i)
 			array[i].color = color;
 	}
+	
+	void runAStar() {
+		
+		if (!AStarStarted) {
+			AStarStarted = true;
+			setColor(startButton->getComponent<CShape>()->vertexArray, sf::Color(155, 155, 155, 255));
+			auto pathVisitedPair = AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN, 
+				[](const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
+					// Calculate the squared euclidian distance -> quite greedy
+					return powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2);
+				}
+				);
+			for (auto& vertex : pathVisitedPair.second) {
+				setColor(graph.getVertexAttribute(vertex).block->getComponent<CShape>()->vertexArray, sf::Color::White);
+			}
+			for (auto& step : pathVisitedPair.first) {
+				std::cout << std::format("vertex:{}, distance:{}\n", step.first, step.second);
+				setColor(graph.getVertexAttribute(step.first).block->getComponent<CShape>()->vertexArray, sf::Color::Cyan);
+			}
+		}
+	}
+
 
 	void resetBlocks() {
 		// Clear blocks
@@ -117,6 +157,8 @@ public:
 			block->destroy();
 		}
 		blocks.clear();
+		// Creeate a graph with n*m vertices
+		graph = AdjacencyListGraph<Vertex>(n * m);
 		// Create blocks (570, 10) -> (1270, 710) // 700 X 700
 		float size = std::min(700.f / n, 700.f / m);
 		float halfSize = (size - 1) / 2.f;
@@ -124,34 +166,55 @@ public:
 		std::vector<std::pair<std::array<float, 2>, std::shared_ptr<Entity>>> pointBlockPairs;
 		for (size_t i = 0; i < n; ++i) {
 			for (size_t j = 0; j < m; ++j) {
+				// Create a block & push them
 				float x = 570 + j * size, y = 10 + i * size;
 				auto blockEntity = createBlock(x, y, size - 1, size - 1, pathColor);
 				blocks.push_back(blockEntity);
 				pointBlockPairs.push_back({ { x + halfSize , y + halfSize }, blockEntity });
+				
+				// Add edges (from, to, weight) to the graph to form a n * m grid
+				size_t cur = j + m * i;
+				if (j != 0)
+					graph.addEdge(cur, cur - 1, 1);
+				if (j != m - 1)
+					graph.addEdge(cur, cur + 1, 1);
+				if (i != 0)
+					graph.addEdge(cur, cur - m, 1);
+				if (i != n - 1)
+					graph.addEdge(cur, cur + m, 1);
+				graph.getVertexAttribute(cur).pos = { i, j };
+				graph.getVertexAttribute(cur).block = blockEntity;
 			}
 		}
 		// Build a K-D tree to efficiently search blocks
-		m_tree.buildTree(pointBlockPairs);
+		tree.buildTree(pointBlockPairs);
 		// Set grid Range
 		gridRect.height = n * size;
 		gridRect.width = m * size;
+		startN = std::floorf(n * 0.15f);
+		startM = std::floorf(m * 0.15f);
+		endN = std::floorf(n * 0.85f);
+		endM = std::floorf(m * 0.85f);
+
 		// Set start and end blocks
-		float startH = std::floorf(gridRect.top + gridRect.height * 0.15f);
-		float startW = std::floorf(gridRect.left + gridRect.width * 0.15f);
-		float endH = std::floorf(gridRect.top + gridRect.height * 0.85f);
-		float endW = std::floorf(gridRect.left + gridRect.width * 0.85f);
+		float startH = gridRect.top + startN * size;
+		float startW = gridRect.left + startM * size;
+		float endH = gridRect.top + endN * size;
+		float endW = gridRect.left + endM * size;
 		std::cout << std::format("{}, {}, {}, {}", startW, startH, endW, endH);
 
-		auto startBlock = m_tree.findNearestNeighbor({ startW, startH }).second;
+		auto startBlock = tree.findNearestNeighbor({ startW, startH }).second;
 		startBlock->getComponent<CBlock>()->isStart = true;
 		setColor(startBlock->getComponent<CShape>()->vertexArray, startColor);
 
-		auto endBlock = m_tree.findNearestNeighbor({ endW, endH }).second;
+		auto endBlock = tree.findNearestNeighbor({ endW, endH }).second;
 		endBlock->getComponent<CBlock>()->isEnd = true;
 		setColor(endBlock->getComponent<CShape>()->vertexArray, endColor);
-		// TODO
-		// Graph
 
+		// Enable path calculation
+		AStarStarted = false;
+		if(startButton)
+			setColor(startButton->getComponent<CShape>()->vertexArray, sf::Color::White);
 
 	}
 
@@ -176,11 +239,10 @@ public:
 		createLabel("Reset", 36, fieldLeft, fieldTop + 125, sf::Color::Blue);
 		// Create start button
 		startButton = createButton(fieldLeft + 50, fieldTop + 225, 100, 50, [this]() {
-			return;
+			runAStar();
 			});
 		// Create start button label
 		createLabel("Start", 36, fieldLeft + 10, fieldTop + 200, sf::Color::Red);
-
 	}
 
 	void handleMouseInput(sf::Event& event) override {
@@ -269,7 +331,7 @@ public:
 			std::cout << mouseX << " " << mouseY << "\n";
 			// Handle clicked button
 			if (gridRect.contains(mouseX, mouseY)) {
-				auto nearestButton = m_tree.findNearestNeighbor({ mouseX, mouseY }).second;
+				auto nearestButton = tree.findNearestNeighbor({ mouseX, mouseY }).second;
 				auto cClick = nearestButton->getComponent<CClickable>();
 				auto cBlock = nearestButton->getComponent<CBlock>();
 				if (cClick->isActive && !cBlock->isStart && !cBlock->isEnd) {
@@ -283,5 +345,6 @@ public:
 		}
 	}
 };
+
 
 

@@ -16,7 +16,7 @@ template <class Vertex>
 class AStar
 {
 public:
-	static std::vector<std::pair<size_t, float>> shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
+	static std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
 		std::function<float(const std::pair<float, float>&, const std::pair<float, float>&)> heuristic = NoHeuristic);
 private:
 	static void initialize(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to);
@@ -29,7 +29,7 @@ private:
 // A heuristic function should be passed as an argument to guide the search.
 // If not given, it runs the Dijksta's algorithm instead.
 template <class Vertex>
-std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
+std::pair<std::vector<std::pair<size_t, float>>, std::vector<size_t>> AStar<Vertex>::shortestPath(AdjacencyListGraph<Vertex>& graph, size_t from, size_t to,
 	std::function<float(const std::pair<float, float>&, const std::pair<float, float>&)> heuristic) {
 	size_t numVetices = graph.getNumVertices();
 	// Initialize the graph's gScroes, fScores, and parents
@@ -41,6 +41,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 
 	// Make a visited vector to prevent redundant calulations
 	std::vector<bool> visited(numVetices, false);
+	std::vector<size_t> visitedVertices;
 	auto& goalAtt = graph.getVertexAttribute(to);
 
 	while (!minQ.empty()) {
@@ -52,6 +53,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 
 		if (!visited[cur]) {
 			visited[cur] = true;
+			visitedVertices.push_back(cur);
 			auto& adjs = graph.getAdjacent(cur);
 			auto& edgeAtts = graph.getEdgeAttributes(cur);
 			auto& curAtt = graph.getVertexAttribute(cur);
@@ -83,7 +85,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 	}
 
 	// Reverse the order
-	return std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend());
+	return std::pair(std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend()), visitedVertices);
 }
 
 template <class Vertex>

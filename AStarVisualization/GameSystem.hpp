@@ -1,10 +1,10 @@
 #pragma once
-#include "MainScene.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vec2.hpp"
 #include <iostream>
 #include <format>
 #include <algorithm>
+#include "MainScene.hpp"
 class GameSystem
 {
 	GameConfig& m_config;

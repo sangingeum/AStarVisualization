@@ -60,6 +60,9 @@
     <ClInclude Include="MainScene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DrawScene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MainScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
