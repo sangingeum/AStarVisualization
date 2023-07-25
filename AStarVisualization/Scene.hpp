@@ -14,5 +14,6 @@ public:
 	virtual void init() = 0;
 	virtual void handleMouseInput(sf::Event& event) = 0;
 	virtual void handleKeyBoardInput(sf::Event& event) = 0;
+	virtual void update(sf::RenderWindow& window) {}
 	std::shared_ptr<EntityManager> getManager();
 };

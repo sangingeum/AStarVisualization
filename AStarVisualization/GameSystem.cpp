@@ -16,24 +16,6 @@ void GameSystem::render() {
 		auto cText = entity->getComponent<CText>();
 		m_window.draw(cText->text, cText->states);
 	}
-
-	/*
-	// Draw a Box for the focused entity
-	if (m_focus) {
-		if (m_focus->hasComponent<CText>()) {
-			auto cText = m_focus->getComponent<CText>();
-			auto bound = cText->states.transform.transformRect(cText->text.getGlobalBounds());
-			auto rect = sf::RectangleShape(sf::Vector2f(bound.width + 2, bound.height + 2));
-			rect.setFillColor(sf::Color::Transparent);
-			rect.setOutlineColor(sf::Color::White);
-			rect.setOutlineThickness(1);
-			rect.setPosition(bound.left - 1, bound.top - 1);
-			m_window.draw(rect);
-		}
-	}
-	*/
-	
-
 	m_window.display();
 }
 
@@ -59,18 +41,17 @@ void GameSystem::handleUserInput() {
 
 		else if (event.type == sf::Event::MouseLeft)
 			std::cout << "the mouse cursor has left the window" << std::endl;
-		else {
-			m_curScene->handleKeyBoardInput(event);
-			// Handle click
-			m_curScene->handleMouseInput(event);
-		}
-
+		
+		m_curScene->handleKeyBoardInput(event);
+		m_curScene->handleMouseInput(event);
 	}
+	
 }
 
 void GameSystem::update() {
 	auto manager = m_curScene->getManager();
 	manager->update();
+	m_curScene->update(m_window);
 }
 void GameSystem::setScene(std::unique_ptr<Scene>&& scene) {
 	m_curScene = std::move(scene);

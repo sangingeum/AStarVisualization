@@ -39,11 +39,14 @@ struct CClickable
 {
 	bool isActive{ true };
 	std::function<void()> onClickListener;
+	std::function<void()> additionalListener;
 	CClickable(std::function<void()> listener) : onClickListener(listener) {}
+	CClickable(std::function<void()> listener1, std::function<void()> listener2) 
+		: onClickListener(listener1), additionalListener(listener2){}
 };
 
 struct CBlock {
-	bool passable{ true };
+	bool isObstacle{ false };
 	bool isStart{ false };
 	bool isEnd{ false };
 	bool visited{ false };
