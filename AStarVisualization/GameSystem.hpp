@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene.hpp"
+#include "MainScene.hpp"
 #include "SFML/Graphics.hpp"
 #include "Vec2.hpp"
 #include <iostream>

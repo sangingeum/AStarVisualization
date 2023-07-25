@@ -140,6 +140,8 @@
     <ClInclude Include="EntityManager.hpp" />
     <ClInclude Include="GameSystem.hpp" />
     <ClInclude Include="Graph.hpp" />
+    <ClInclude Include="KDTree.hpp" />
+    <ClInclude Include="MainScene.hpp" />
     <ClInclude Include="MinPriorityQueue.hpp" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Vec2.hpp" />
@@ -151,6 +153,7 @@
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="GameSystem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>

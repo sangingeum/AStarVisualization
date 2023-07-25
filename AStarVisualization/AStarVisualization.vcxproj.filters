@@ -13,22 +13,25 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\AStarUtility">
+    <Filter Include="Header Files\KDTree">
+      <UniqueIdentifier>{4a96ffbb-aa0f-4b5e-8c96-509cd64827ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AStar">
       <UniqueIdentifier>{66049902-e7fb-4dfe-9fb3-80f956f7ad1c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MinPriorityQueue.hpp">
-      <Filter>Header Files\AStarUtility</Filter>
+      <Filter>Header Files\AStar</Filter>
     </ClInclude>
     <ClInclude Include="AdjacencyListGraph.hpp">
-      <Filter>Header Files\AStarUtility</Filter>
+      <Filter>Header Files\AStar</Filter>
     </ClInclude>
     <ClInclude Include="AStar.hpp">
-      <Filter>Header Files\AStarUtility</Filter>
+      <Filter>Header Files\AStar</Filter>
     </ClInclude>
     <ClInclude Include="Graph.hpp">
-      <Filter>Header Files\AStarUtility</Filter>
+      <Filter>Header Files\AStar</Filter>
     </ClInclude>
     <ClInclude Include="Vec2.hpp">
       <Filter>Header Files</Filter>
@@ -49,6 +52,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KDTree.hpp">
+      <Filter>Header Files\KDTree</Filter>
+    </ClInclude>
+    <ClInclude Include="MainScene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -75,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

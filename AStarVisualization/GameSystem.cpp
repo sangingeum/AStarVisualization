@@ -76,51 +76,18 @@ void GameSystem::handleUserInput() {
 			}
 		}
 		// Handle click
+		m_curScene->handleMouseInput(event);
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
 			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				std::cout << "the right button was pressed" << std::endl;
-				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-				auto manager = m_curScene->getManager();
-				// Lose focus
-				std::cout << "Focus lost" << std::endl;
-				m_focus.reset();
-				// Find clicked entity
-				auto& entities = manager->getEntities(ComponentType::CLICKABLE);
-				for (auto& entity : entities) {
-					auto cClick = entity->getComponent<CClickable>();
-					if (cClick->isActive) {
-						// Boundary check for Edit Texts
-						if (entity->hasComponent<CText>()) {
-							auto cText = entity->getComponent<CText>();
-							if (cText->canEdit) {
-								auto bound = cText->states.transform.transformRect(cText->text.getGlobalBounds());
-								if (bound.contains(event.mouseButton.x, event.mouseButton.y)) {
-									m_focus = entity;
-									cClick->onClickListener();
-									std::cout << "New focus" << std::endl;
-									std::cout << std::format("{}, {}, {}, {}\n", bound.top, bound.left, bound.width, bound.height);
-									break;
-								}
-							}
-						}
-						// Boundary check for Shapes
-						else if (entity->hasComponent<CShape>()) {
-							auto cShape = entity->getComponent<CShape>();
-							auto bound = cShape->states.transform.transformRect(cShape->vertexArray.getBounds());
-							std::cout << std::format("{}, {}, {}, {}\n", bound.top, bound.left, bound.width, bound.height);
-							if (bound.contains(event.mouseButton.x, event.mouseButton.y)) {
-								cClick->onClickListener();
-								std::cout << "Clicked a shape" << std::endl;
-								break;
-							}
-						}
-					}
-				}
+				
+				
+				
+				
 			}
 		}
+
 		/*
 		if (event.type == sf::Event::MouseMoved)
 		{
@@ -128,6 +95,7 @@ void GameSystem::handleUserInput() {
 			std::cout << "new mouse y: " << event.mouseMove.y << std::endl;
 		}
 		*/
+
 		if (event.type == sf::Event::MouseEntered)
 			std::cout << "the mouse cursor has entered the window" << std::endl;
 
