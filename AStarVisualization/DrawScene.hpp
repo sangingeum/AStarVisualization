@@ -2,8 +2,7 @@
 #include "Scene.hpp"
 #include "KDTree.hpp"
 #include <cmath>
-#include <iostream>
-#include <format>
+
 
 class DrawScene : public Scene {
 
@@ -81,7 +80,6 @@ public:
 		auto mText = mField->getComponent<CText>();
 		this->n = std::stoi(std::string(nText->text.getString()));
 		this->m = std::stoi(std::string(mText->text.getString()));
-		std::cout << std::format("n:{}, m:{}\n", this->n, this->m);
 	}
 	void resetBlocks() {
 		// Clear blocks
@@ -136,23 +134,18 @@ public:
 		if (event.type == sf::Event::MouseButtonPressed) {
 			isMousePressing = true;
 			if (event.mouseButton.button == sf::Mouse::Left) {
-				std::cout << "the left button was pressed" << std::endl;
-				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
 				float mouseX = event.mouseButton.x;
 				float mouseY = event.mouseButton.y;
 				// Check text fields
 				for (auto& entity : { nField, mField }) {
 					auto cText = entity->getComponent<CText>();
 					// Reset focus
-					std::cout << "Lose focus\n";
 					cText->focused = false;
 					auto& text = cText->text;
 					text.setStyle(sf::Text::Style::Regular);
 					// Set focus
 					auto bound = cText->states.transform.transformRect(text.getGlobalBounds());
 					if (bound.contains(mouseX, mouseY)) {
-						std::cout << "New focus\n";
 						cText->focused = true;
 						text.setStyle(sf::Text::Style::Underlined);
 					}
@@ -183,7 +176,6 @@ public:
 				auto& str = text.getString();
 				auto code = event.text.unicode;
 				if (cText->focused) {
-					std::cout << "Editting Focused text\n";
 					// backspace
 					if (code == 8) {
 						size_t size = str.getSize();
@@ -210,7 +202,6 @@ public:
 			auto mousePos = sf::Mouse::getPosition(window);
 			float mouseX = mousePos.x;
 			float mouseY = mousePos.y;
-			std::cout << mouseX << " " << mouseY << "\n";
 			// Handle clicked button
 			if (gridRect.contains(mouseX, mouseY)) {
 				auto nearestButton = m_tree.findNearestNeighbor({ mouseX, mouseY }).second;

@@ -1,9 +1,4 @@
 #pragma once
-#include "SFML/Graphics.hpp"
-#include "Vec2.hpp"
-#include <iostream>
-#include <format>
-#include <algorithm>
 #include "MainScene.hpp"
 class GameSystem
 {

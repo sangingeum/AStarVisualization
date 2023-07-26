@@ -23,6 +23,8 @@ void GameSystem::handleUserInput() {
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{	
+		if (event.type == sf::Event::Closed)
+			m_window.close();
 		// Let the current scent to handle user inputs
 		m_curScene->handleKeyBoardInput(event);
 		m_curScene->handleMouseInput(event);

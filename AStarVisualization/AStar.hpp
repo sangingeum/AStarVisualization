@@ -85,10 +85,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 			}
 		}
 	}
-	// Reset Start and End color
-	setColor(startAtt.block->getComponent<CShape>()->vertexArray, startColor);
-	setColor(goalAtt.block->getComponent<CShape>()->vertexArray, endColor);
-
+	
 
 	// Construct the path using the vertex attributes calculated above
 	std::vector<std::pair<size_t, float>> path;
@@ -98,9 +95,20 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 		path.push_back({ cur, att.gScore });
 		cur = att.parent;
 	}
-
+	
+	// Color the path
+	for (auto& step : path) {
+		setColor(graph.getVertexAttribute(step.first).block->getComponent<CShape>()->vertexArray, sf::Color(255, 0, 255, 255));
+	}
 	// Reverse the order
-	return std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend());
+	path = std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend());
+
+	// Reset Start and End color
+	setColor(startAtt.block->getComponent<CShape>()->vertexArray, startColor);
+	setColor(goalAtt.block->getComponent<CShape>()->vertexArray, endColor);
+
+	
+	return path;
 }
 
 template <class Vertex>

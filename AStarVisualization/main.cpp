@@ -1,8 +1,7 @@
-#include "AStar.hpp"
 #include "GameSystem.hpp"
-#include <SFML/Graphics.hpp>
 
-int main()
+
+int WinMain()
 {
     GameSystem system;
     system.run();

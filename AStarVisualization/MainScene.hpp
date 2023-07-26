@@ -3,8 +3,7 @@
 #include "KDTree.hpp"
 #include "AStar.hpp"
 #include <cmath>
-#include <iostream>
-#include <format>
+
 
 
 //Concrete Scenes
@@ -42,6 +41,8 @@ public:
 	bool isMousePressing{ false };
 	bool leftPressing{ false };
 	bool AStarStarted{ false };
+	float guidanceScaler{ 1.0f };
+
 
 
 	std::shared_ptr<Entity> createEditText(const std::string initialText, unsigned fontSize, float left, float top) {
@@ -135,12 +136,13 @@ public:
 		if (!AStarStarted) {
 			AStarStarted = true;
 			setColor(startButton->getComponent<CShape>()->vertexArray, grayColor);
-
+			float scaler{ guidanceScaler };
 			AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN,
-				[](const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
+				[scaler](const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
 					// Calculate the squared euclidian distance -> quite greedy
-					return powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2);
+					return scaler *(powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2));
 				});
+			
 		}
 	}
 
