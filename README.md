@@ -23,6 +23,7 @@ To build this project, you need the following:
 ![image1](images/1.PNG)
 ![image2](images/2.PNG)
 ![image3](images/3.PNG)
+![image4](images/4.PNG)
 ![gif1](images/AStar1.gif)
 ![gif2](images/AStar2.gif)
 
