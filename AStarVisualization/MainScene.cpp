@@ -97,7 +97,7 @@ void MainScene::runAStar() {
 				// Calculate the squared euclidian distance -> quite greedy
 				return scaler * (std::sqrt(powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2)));
 			});
-
+		
 	}
 }
 
