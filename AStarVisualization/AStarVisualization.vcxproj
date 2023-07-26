@@ -136,7 +136,6 @@
     <ClInclude Include="AStar.hpp" />
     <ClInclude Include="Component.hpp" />
     <ClInclude Include="Config.hpp" />
-    <ClInclude Include="DrawScene.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="EntityManager.hpp" />
     <ClInclude Include="GameSystem.hpp" />
@@ -150,7 +149,6 @@
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Config.cpp" />
-    <ClCompile Include="DrawScene.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="GameSystem.cpp" />
