@@ -6,7 +6,6 @@ class Scene
 {
 protected:
 	std::shared_ptr<EntityManager> m_entityManager;
-	sf::Color m_blockColor = sf::Color::White;
 	GameConfig& m_config;
 public:
 	virtual ~Scene() = default;
