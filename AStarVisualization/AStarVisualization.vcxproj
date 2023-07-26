@@ -144,7 +144,6 @@
     <ClInclude Include="MainScene.hpp" />
     <ClInclude Include="MinPriorityQueue.hpp" />
     <ClInclude Include="Scene.hpp" />
-    <ClInclude Include="Vec2.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
@@ -155,7 +154,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -33,9 +33,6 @@
     <ClInclude Include="Graph.hpp">
       <Filter>Header Files\AStar</Filter>
     </ClInclude>
-    <ClInclude Include="Vec2.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Component.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Vec2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
