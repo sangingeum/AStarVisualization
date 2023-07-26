@@ -95,7 +95,7 @@ void MainScene::runAStar() {
 		AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN,
 			[scaler](const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
 				// Calculate the squared euclidian distance -> quite greedy
-				return scaler * (powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2));
+				return scaler * (std::sqrt(powf(posA.first - posB.first, 2) + powf(posA.second - posB.second, 2)));
 			});
 
 	}
