@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MinPriorityQueue.hpp">
-      <Filter>Header Files\AStar</Filter>
-    </ClInclude>
     <ClInclude Include="AdjacencyListGraph.hpp">
       <Filter>Header Files\AStar</Filter>
     </ClInclude>
@@ -56,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="MainScene.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FibonacciHeap.hpp">
+      <Filter>Header Files\AStar</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

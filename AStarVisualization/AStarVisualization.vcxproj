@@ -138,11 +138,11 @@
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="EntityManager.hpp" />
+    <ClInclude Include="FibonacciHeap.hpp" />
     <ClInclude Include="GameSystem.hpp" />
     <ClInclude Include="Graph.hpp" />
     <ClInclude Include="KDTree.hpp" />
     <ClInclude Include="MainScene.hpp" />
-    <ClInclude Include="MinPriorityQueue.hpp" />
     <ClInclude Include="Scene.hpp" />
   </ItemGroup>
   <ItemGroup>

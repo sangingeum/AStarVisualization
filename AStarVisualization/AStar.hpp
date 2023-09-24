@@ -1,6 +1,6 @@
 #pragma once
 #include "AdjacencyListGraph.hpp"
-#include "MinPriorityQueue.hpp"
+#include "FibonacciHeap.hpp"
 #include "Entity.hpp"
 #include <limits>
 #include <functional>
@@ -42,18 +42,21 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 	initialize(graph, from, to);
 
 	// Create a minQ that stores vetices
-	MinPriorityQueue<size_t> minQ;
+	FibonacciHeap<size_t> minQ;
+	
 	minQ.push(graph.getVertexAttribute(from).fScore, from);
 
 	// Make a visited vector to prevent redundant calulations
 	std::vector<bool> visited(numVetices, false);
+	// Make a handle vector for the decreaseKey operation
+	std::vector<FibonacciHeap<size_t>::Handle> handles(numVetices);
 	auto& goalAtt = graph.getVertexAttribute(to);
 	auto& startAtt = graph.getVertexAttribute(from);
 	auto startColor = startAtt.block->getComponent<CShape>()->vertexArray[0].color;
 	auto endColor = goalAtt.block->getComponent<CShape>()->vertexArray[0].color;
 
 	while (!minQ.empty()) {
-		auto [fScore, cur] = minQ.front(); minQ.pop();
+		auto cur = minQ.top(); minQ.pop();
 		if (cur == to) {
 			// Found the target. Stop searching
 			break;
@@ -77,9 +80,14 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 					neighborAtt.parent = cur;
 					neighborAtt.gScore = tentativeGScore;
 					neighborAtt.fScore = tentativeGScore + heuristic(neighborAtt.pos, goalAtt.pos);
-					// Push the neighbor to the minQ with neighbor's fScore as a key
 					// Min priority queue selects the next vertex based on the fScore which is the sum of the gScore and the hScore.
-					minQ.push(neighborAtt.fScore, neighbor);
+					
+					// Push the neighbor to the minQ with neighbor's fScore as a key if neighbor info was never pushed before
+					// Decrease the key otherwise
+					if (handles[neighbor].isNull())
+						minQ.push(neighborAtt.fScore, neighbor);
+					else
+						minQ.decreaseKey(handles[neighbor], neighborAtt.fScore);
 					setColor(neighborAtt.block->getComponent<CShape>()->vertexArray, sf::Color::White);
 				}
 			}
