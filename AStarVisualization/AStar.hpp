@@ -43,13 +43,14 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 
 	// Create a minQ that stores vetices
 	FibonacciHeap<size_t> minQ;
-	
-	minQ.push(graph.getVertexAttribute(from).fScore, from);
-
 	// Make a visited vector to prevent redundant calulations
 	std::vector<bool> visited(numVetices, false);
 	// Make a handle vector for the decreaseKey operation
 	std::vector<FibonacciHeap<size_t>::Handle> handles(numVetices);
+
+
+	handles[from] = minQ.push(graph.getVertexAttribute(from).fScore, from);
+
 	auto& goalAtt = graph.getVertexAttribute(to);
 	auto& startAtt = graph.getVertexAttribute(from);
 	auto startColor = startAtt.block->getComponent<CShape>()->vertexArray[0].color;
@@ -76,19 +77,22 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 					continue;
 				float tentativeGScore = curAtt.gScore + edgeAtts[i];
 				// If the path through the current vertex is better, update the neighbor
-				if (neighborAtt.gScore > tentativeGScore && !visited[neighbor]) {
+				if (!visited[neighbor] && (neighborAtt.gScore > tentativeGScore)) {
 					neighborAtt.parent = cur;
 					neighborAtt.gScore = tentativeGScore;
 					neighborAtt.fScore = tentativeGScore + heuristic(neighborAtt.pos, goalAtt.pos);
+
 					// Min priority queue selects the next vertex based on the fScore which is the sum of the gScore and the hScore.
 					
-					// Push the neighbor to the minQ with neighbor's fScore as a key if neighbor info was never pushed before
+					// Push the neighbor to the minQ with neighbor's fScore as a key if the neighbor node hasn't been pushed before
+					if (handles[neighbor].isNull()) {
+						handles[neighbor] = minQ.push(neighborAtt.fScore, neighbor);
+						setColor(neighborAtt.block->getComponent<CShape>()->vertexArray, sf::Color::White);
+					}
 					// Decrease the key otherwise
-					if (handles[neighbor].isNull())
-						minQ.push(neighborAtt.fScore, neighbor);
 					else
 						minQ.decreaseKey(handles[neighbor], neighborAtt.fScore);
-					setColor(neighborAtt.block->getComponent<CShape>()->vertexArray, sf::Color::White);
+					
 				}
 			}
 		}
