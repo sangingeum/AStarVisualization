@@ -143,6 +143,7 @@
     <ClInclude Include="Graph.hpp" />
     <ClInclude Include="KDTree.hpp" />
     <ClInclude Include="MainScene.hpp" />
+    <ClInclude Include="Profiler.hpp" />
     <ClInclude Include="Scene.hpp" />
   </ItemGroup>
   <ItemGroup>

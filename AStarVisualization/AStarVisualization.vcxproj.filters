@@ -19,6 +19,9 @@
     <Filter Include="Header Files\AStar">
       <UniqueIdentifier>{66049902-e7fb-4dfe-9fb3-80f956f7ad1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Profiler">
+      <UniqueIdentifier>{0cadaaf4-f224-4b9d-b9a7-3b8236dbbd58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdjacencyListGraph.hpp">
@@ -56,6 +59,9 @@
     </ClInclude>
     <ClInclude Include="FibonacciHeap.hpp">
       <Filter>Header Files\AStar</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiler.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

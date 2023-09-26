@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include "SFML/Graphics.hpp"
+#include <chrono>
+using namespace std::chrono_literals;
 
 // Singleton config
 class GameConfig
@@ -14,8 +16,10 @@ class GameConfig
 	void operator=(const GameConfig&) = delete;
 	~GameConfig() = default;
 public:
+
 	static GameConfig& instance();
 	unsigned frameRate = 144;
+	std::chrono::milliseconds miliPerFrame = 2ms;
 	int windowWidth = 1280;
 	int widowHeight = 720;
 	std::string windowName = "A* algorithm";

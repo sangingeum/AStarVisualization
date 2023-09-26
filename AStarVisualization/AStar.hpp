@@ -24,7 +24,8 @@ private:
 	static float NoHeuristic(const std::pair<float, float>& posA, const std::pair<float, float>& posB) {
 		return 0;
 	}
-	static void setColor(sf::VertexArray& array, sf::Color color) {
+	static void setColor(std::shared_ptr<CShape> shapeComponent, sf::Color color) {
+		auto& array = shapeComponent->vertexArray;
 		size_t vertexSize = array.getVertexCount();
 		for (size_t i = 0; i < vertexSize; ++i)
 			array[i].color = color;
@@ -68,7 +69,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 			auto& adjs = graph.getAdjacent(cur);
 			auto& edgeAtts = graph.getEdgeAttributes(cur);
 			auto& curAtt = graph.getVertexAttribute(cur);
-			setColor(curAtt.block->getComponent<CShape>()->vertexArray, sf::Color::Green);
+			setColor(curAtt.block->getComponent<CShape>(), sf::Color::Green);
 			size_t adjSize = adjs.size();
 			for (size_t i = 0; i < adjSize; ++i) {
 				size_t neighbor = adjs[i];
@@ -87,7 +88,7 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 					// Push the neighbor to the minQ with neighbor's fScore as a key if the neighbor node hasn't been pushed before
 					if (handles[neighbor].isNull()) {
 						handles[neighbor] = minQ.push(neighborAtt.fScore, neighbor);
-						setColor(neighborAtt.block->getComponent<CShape>()->vertexArray, sf::Color::White);
+						setColor(neighborAtt.block->getComponent<CShape>(), sf::Color::White);
 					}
 					// Decrease the key otherwise
 					else
@@ -110,14 +111,14 @@ std::vector<std::pair<size_t, float>> AStar<Vertex>::shortestPath(AdjacencyListG
 	
 	// Color the path
 	for (auto& step : path) {
-		setColor(graph.getVertexAttribute(step.first).block->getComponent<CShape>()->vertexArray, sf::Color(255, 0, 255, 255));
+		setColor(graph.getVertexAttribute(step.first).block->getComponent<CShape>(), sf::Color(255, 0, 255, 255));
 	}
 	// Reverse the order
 	path = std::vector<std::pair<size_t, float>>(path.rbegin(), path.rend());
 
 	// Reset Start and End color
-	setColor(startAtt.block->getComponent<CShape>()->vertexArray, startColor);
-	setColor(goalAtt.block->getComponent<CShape>()->vertexArray, endColor);
+	setColor(startAtt.block->getComponent<CShape>(), startColor);
+	setColor(goalAtt.block->getComponent<CShape>(), endColor);
 
 	
 	return path;

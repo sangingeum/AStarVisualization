@@ -4,8 +4,6 @@
 #include "AStar.hpp"
 #include <cmath>
 
-
-
 //Concrete Scenes
 class MainScene : public Scene {
 
@@ -41,6 +39,7 @@ private:
 	bool isMousePressing{ false };
 	bool leftPressing{ false };
 	bool AStarStarted{ false };
+	bool needRender{ false };
 	float guidanceScaler{ 1.0f };
 public:
 	std::shared_ptr<Entity> createEditText(const std::string initialText, unsigned fontSize, float left, float top);
@@ -48,13 +47,16 @@ public:
 	std::shared_ptr<Entity> createButton(float left, float top, float width, float height, std::function<void()> listener);
 	std::shared_ptr<Entity> createBlock(float left, float top, float width, float height, sf::Color color = sf::Color::White);
 	void updateNM();
-	void setColor(sf::VertexArray& array, sf::Color color);
+	void setColor(std::shared_ptr<CShape> component, sf::Color color);
+	void setText(std::shared_ptr<CText> component, std::string newText);
+	void setTextStyle(std::shared_ptr<CText> component, sf::Text::Style style);
 	void runAStar();
 	void resetBlocks();
 	void init() override;
 	void handleMouseInput(sf::Event& event) override;
 	void handleKeyBoardInput(sf::Event& event) override;
 	void update(sf::RenderWindow& window) override;
+	bool getNeedRender() override;
 };
 
 

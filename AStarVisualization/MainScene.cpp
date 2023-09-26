@@ -50,20 +50,18 @@ std::shared_ptr<Entity> MainScene::createBlock(float left, float top, float widt
 		// Listener1
 		[cShape, cBlock, this]() {
 			cBlock->isObstacle = true;
-			size_t size = cShape->vertexArray.getVertexCount();
-			for (size_t i = 0; i < size; ++i) {
-				cShape->vertexArray[i].color = obstacleColor;
-			}},
+			setColor(cShape, obstacleColor);
+		},
 		// Listener2
 		[cShape, cBlock, this]() {
 			cBlock->isObstacle = false;
-			size_t size = cShape->vertexArray.getVertexCount();
-			for (size_t i = 0; i < size; ++i) {
-				cShape->vertexArray[i].color = pathColor;
-			}}
+			setColor(cShape, pathColor);
+		}
 	);
 	return entity;
 }
+
+
 void MainScene::updateNM() {
 	auto nText = nField->getComponent<CText>();
 	auto mText = mField->getComponent<CText>();
@@ -71,26 +69,42 @@ void MainScene::updateNM() {
 	this->m = std::stoi(std::string(mText->text.getString()));
 	// Minimum value is 5
 	if (this->n < 5) {
-		nText->text.setString("5");
+		setText(nText, "5");
 		this->n = 5;
 	}
 	if (this->m < 5) {
-		mText->text.setString("5");
+		setText(mText, "5");
 		this->m = 5;
 	}
-
 }
-void MainScene::setColor(sf::VertexArray& array, sf::Color color) {
+
+void MainScene::setColor(std::shared_ptr<CShape> component, sf::Color color) {
+	auto& array = component->vertexArray;
+	if (array[0].color == color)
+		return;
 	size_t vertexSize = array.getVertexCount();
 	for (size_t i = 0; i < vertexSize; ++i)
 		array[i].color = color;
+	needRender = true;
+}
+
+void MainScene::setText(std::shared_ptr<CText> component, std::string newText) {
+	auto& text = component->text;
+	text.setString(newText);
+	needRender = true;
+}
+
+void MainScene::setTextStyle(std::shared_ptr<CText> component, sf::Text::Style style) {
+	auto& text = component->text;
+	text.setStyle(style);
+	needRender = true;
 }
 
 void MainScene::runAStar() {
 
 	if (!AStarStarted) {
 		AStarStarted = true;
-		setColor(startButton->getComponent<CShape>()->vertexArray, grayColor);
+		setColor(startButton->getComponent<CShape>(), grayColor);
 		float scaler{ guidanceScaler };
 		/*
 		AStar<Vertex>::shortestPath(graph, startM + m * startN, endM + m * endN,
@@ -104,7 +118,7 @@ void MainScene::runAStar() {
 				// Calculate the squared euclidian distance -> quite greedy
 				return scaler * (abs(posA.first - posB.first) + abs(posA.second - posB.second));
 			});
-		
+		needRender = true;
 	}
 }
 
@@ -162,17 +176,16 @@ void MainScene::resetBlocks() {
 
 	auto startBlock = tree.findNearestNeighbor({ startW, startH }).second;
 	startBlock->getComponent<CBlock>()->isStart = true;
-	setColor(startBlock->getComponent<CShape>()->vertexArray, startColor);
+	setColor(startBlock->getComponent<CShape>(), startColor);
 
 	auto endBlock = tree.findNearestNeighbor({ endW, endH }).second;
 	endBlock->getComponent<CBlock>()->isEnd = true;
-	setColor(endBlock->getComponent<CShape>()->vertexArray, endColor);
+	setColor(endBlock->getComponent<CShape>(), endColor);
 
 	// Enable path calculation
 	AStarStarted = false;
 	if (startButton)
-		setColor(startButton->getComponent<CShape>()->vertexArray, sf::Color::White);
-
+		setColor(startButton->getComponent<CShape>(), sf::Color::White);
 }
 
 void MainScene::init() {
@@ -216,12 +229,12 @@ void MainScene::handleMouseInput(sf::Event& event) {
 				// Reset focus
 				cText->focused = false;
 				auto& text = cText->text;
-				text.setStyle(sf::Text::Style::Regular);
+				setTextStyle(cText, sf::Text::Style::Regular);
 				// Set focus
 				auto bound = cText->states.transform.transformRect(text.getGlobalBounds());
 				if (bound.contains(mouseX, mouseY)) {
 					cText->focused = true;
-					text.setStyle(sf::Text::Style::Underlined);
+					setTextStyle(cText, sf::Text::Style::Underlined);
 				}
 			}
 			// Check buttons
@@ -257,17 +270,17 @@ void MainScene::handleKeyBoardInput(sf::Event& event) {
 				if (code == 8) {
 					size_t size = str.getSize();
 					if (size <= 1)
-						text.setString("0");
+						setText(cText, "0");
 					else
-						text.setString(str.substring(0, size - 1));
+						setText(cText, str.substring(0, size - 1));
 				}
 				// number
 				else if (48 <= code && code <= 57) {
 					size_t size = str.getSize();
 					if (str == "0")
-						text.setString(static_cast<char>(code));
+						setText(cText, std::string(1, static_cast<char>(code)));
 					else
-						text.setString(str + static_cast<char>(code));
+						setText(cText, str + static_cast<char>(code));
 				}
 			}
 		}
@@ -293,4 +306,10 @@ void MainScene::update(sf::RenderWindow& window) {
 
 		}
 	}
+}
+
+bool MainScene::getNeedRender() {
+	bool need = needRender;
+	needRender = false;
+	return need;
 }
