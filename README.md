@@ -8,9 +8,9 @@ To build this project, you need the following:
 * SFML Library [(Visual Studio SFML Setup Guideline)](https://www.sfml-dev.org/tutorials/2.6/start-vc.php) 
 
 ## How to play
-1. Download the ```AStarVisualization.exe``` executable from the repository
-2. Download the ```fonts``` folder and place it with the executable
-3. Run the executable
+1. Download the latest release from my repository
+2. Unzip the file
+3. Run the executable named ```AStarVisualization.exe```
 
 * Mouse Left Click(or Hold) : place an obstacle at the cursor position
 * Mouse Right Click(or Hold) : remove an obstacle at the cursor position

@@ -218,7 +218,6 @@ void MainScene::init() {
 void MainScene::handleMouseInput(sf::Event& event) {
 
 	if (event.type == sf::Event::MouseButtonPressed) {
-		isMousePressing = true;
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			leftPressing = true;
 			float mouseX = event.mouseButton.x;
@@ -250,9 +249,13 @@ void MainScene::handleMouseInput(sf::Event& event) {
 		else {
 			leftPressing = false;
 		}
+		isMousePressing = true;
 	}
-	else if (event.type == sf::Event::MouseButtonReleased)
+	else if (event.type == sf::Event::MouseButtonReleased) {
 		isMousePressing = false;
+		m_mousePressingSecondTime = false;
+	}
+		
 
 
 }
@@ -293,17 +296,38 @@ void MainScene::update(sf::RenderWindow& window) {
 		auto mousePos = sf::Mouse::getPosition(window);
 		float mouseX = mousePos.x;
 		float mouseY = mousePos.y;
-		if (gridRect.contains(mouseX, mouseY)) {
-			auto nearestButton = tree.findNearestNeighbor({ mouseX, mouseY }).second;
-			auto cClick = nearestButton->getComponent<CClickable>();
-			auto cBlock = nearestButton->getComponent<CBlock>();
-			if (cClick->isActive && !cBlock->isStart && !cBlock->isEnd) {
-				if (leftPressing)
-					cClick->onClickListener();
-				else
-					cClick->additionalListener();
+		std::vector<std::pair<float, float>> mousePositions;
+		mousePositions.reserve(m_mouseSplits);
+		mousePositions.push_back({ mouseX, mouseY });
+		if (m_mousePressingSecondTime) {
+			float xDiff = (m_lastMouseX - mouseX)/m_mouseSplits;
+			float yDiff = (m_lastMouseY - mouseY)/m_mouseSplits;
+			float xOffset = xDiff;
+			float yOffset = yDiff;
+			for (unsigned i = 1; i < m_mouseSplits; ++i) {
+				mousePositions.push_back({ mouseX + xOffset, mouseY + yOffset });
+				xOffset += xDiff;
+				yOffset += yDiff;
 			}
+		}
+		else {
+			m_mousePressingSecondTime = true;
+		}
+		m_lastMouseX = mouseX;
+		m_lastMouseY = mouseY;
 
+		for (auto [mouseX, mouseY] : mousePositions) {
+			if (gridRect.contains(mouseX, mouseY)) {
+				auto nearestButton = tree.findNearestNeighbor({ mouseX, mouseY }).second;
+				auto cClick = nearestButton->getComponent<CClickable>();
+				auto cBlock = nearestButton->getComponent<CBlock>();
+				if (cClick->isActive && !cBlock->isStart && !cBlock->isEnd) {
+					if (leftPressing)
+						cClick->onClickListener();
+					else
+						cClick->additionalListener();
+				}
+			}
 		}
 	}
 }

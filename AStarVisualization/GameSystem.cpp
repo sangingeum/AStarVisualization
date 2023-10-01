@@ -46,10 +46,12 @@ void GameSystem::update() {
 	manager->update();
 	m_curScene->update(m_window);
 }
+
 void GameSystem::setScene(std::unique_ptr<Scene>&& scene) {
 	m_curScene = std::move(scene);
 	m_curScene->init();
 }
+
 GameSystem::GameSystem() : m_config(GameConfig::instance()), m_window(sf::VideoMode(m_config.windowWidth, m_config.widowHeight), m_config.windowName.c_str())
 {
 	m_window.setFramerateLimit(m_config.frameRate);
